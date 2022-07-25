@@ -10,4 +10,6 @@ RUN npm install && npm cache clean --force
 
 COPY . .
 
+USER node
+
 CMD [ "node", "./bin/www" ]
