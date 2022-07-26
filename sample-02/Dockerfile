@@ -2,14 +2,18 @@ FROM node:10-alpine
 
 EXPOSE 3000
 
-WORKDIR /usr/src/app
+WORKDIR /node
 
 COPY package.json package-lock.json* ./
 
-RUN npm install && npm cache clean --force
-
-COPY . .
+RUN mkdir app && chown -R node:node .
 
 USER node
+
+RUN npm install && npm cache clean --force
+
+WORKDIR /node/app
+
+COPY --chown node:node . .
 
 CMD [ "node", "./bin/www" ]
