@@ -1,0 +1,9 @@
+version: '2.2'
+
+services:
+  web-3:
+    image: sample-03
+    init: true
+    build: .
+    ports:
+      - "3000:3000"
