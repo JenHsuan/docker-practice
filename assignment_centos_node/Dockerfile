@@ -1,6 +1,7 @@
 FROM centos:7
 
-# ENV NODE_VERSION "$NODE_VERSION"
+#ENV NODE_VERSION "$NODE_VERSION"
+ARG NODE_VERSION
 
 EXPOSE 3000
 
@@ -10,7 +11,7 @@ RUN yum update -y
 
 RUN yum install curl -y
 
-RUN curl -sL https://rpm.nodesource.com/setup_${$NODE_VERSION} | bash # for node version 10.x
+RUN curl -sL https://rpm.nodesource.com/setup_${NODE_VERSION} | bash # for node version 10.x
 
 RUN yum -y install nodejs
 

@@ -3,6 +3,8 @@ version: '2.2'
 services:
   web:
     image: assignment-centos
+    environment:
+      NODE_VERSION: "10.x"
     init: true
     build: .
     ports:
