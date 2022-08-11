@@ -2,10 +2,12 @@ version: '2.2'
 
 services:
   web:
+    build:
+      context: .
+      args:
+        NODE_VERSION: "10.x"
     image: assignment-centos
-    environment:
-      NODE_VERSION: "10.x"
+    env_file: .env
     init: true
-    build: .
     ports:
       - "3000:3000"
