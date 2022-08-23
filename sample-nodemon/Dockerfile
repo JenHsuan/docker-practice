@@ -1,13 +1,16 @@
-FROM node:10-alpine
 
-EXPOSE 3000
+FROM node:10.15-slim
 
-WORKDIR /usr/src/app
+ENV NODE_ENV=production
 
-COPY package.json package-lock.json* ./
+WORKDIR /app
+
+COPY package.json package-lock*.json ./
 
 RUN npm install && npm cache clean --force
 
+ENV PATH /app/node_modules/.bin/:$PATH
+
 COPY . .
 
-CMD [ "node", "./bin/www" ]
+CMD ["nodemon", "./bin/www"]

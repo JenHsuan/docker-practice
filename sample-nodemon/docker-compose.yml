@@ -1,9 +1,13 @@
 version: '2.2'
 
 services:
-  web:
-    image: sample-02
-    init: true
+  web-nodemon:
+    image: sample-nodemon
     build: .
+    command: /app/node_modules/.bin/nodemon ./bin/www
     ports:
       - "3000:3000"
+    volumes:
+      - .:/app
+    environment:
+      - NODE_ENV=development
