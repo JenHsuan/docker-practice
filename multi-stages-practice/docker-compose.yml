@@ -4,6 +4,8 @@ services:
   web:
     image: sample-02
     init: true
-    build: .
+    build:
+      context: .
+      target: dev
     ports:
       - "3000:3000"
