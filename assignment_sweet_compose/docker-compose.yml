@@ -75,19 +75,11 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
     ports:
-      # The HTTP port
       - "80:80"
       - "8080:8080"
-      #- "5000:5000"
-      #- "5001:5001"
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      - "traefik.enable=true"
-      - "traefik.port=8080"
-      - "traefik.default.protocol=http"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.example.com`)"
     networks:
       - backend
       - frontend
