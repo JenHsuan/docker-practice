@@ -7,8 +7,6 @@ EXPOSE 80
 # add tini for proper signal handling
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    # use 'apt-cache policy <package-name>' to get installed versions
-    curl=7.64.0-4+deb10u2 \
     tini=0.18.0-1 \
     && rm -rf /var/lib/apt/lists/*
 

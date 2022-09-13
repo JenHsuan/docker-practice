@@ -1,4 +1,4 @@
-version: '2.4'
+version: '3'
 
 services:
   redis:
@@ -21,24 +21,39 @@ services:
 
   vote:
     image: bretfisher/examplevotingapp_vote
-    ports:
-      - '5000:80'
     networks:
       - frontend
+    ports:
+      - '5000:80'
     depends_on:
       redis:
         condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=80"
+      - "traefik.default.protocol=http"
+      - "traefik.http.routers.vote.rule=Host(`vote.localhost`)"
 
   result:
     build:
       context: result
+    command: nodemon --inspect=0.0.0.0:9229 server.js
+    environment:
+      - NODE_ENV=development
     ports:
       - '5001:80'
+      - '9229:9229'
+    volumes:
+      - ./result:/app
     networks:
       - backend
     depends_on:
       db:
         condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.default.protocol=http"
+      - "traefik.http.routers.result.rule=Host(`result.localhost`)"
 
   worker:
     image: bretfisher/examplevotingapp_worker
@@ -50,6 +65,32 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+  reverse-proxy:
+    # The official v2.0 Traefik docker image
+    image: traefik:v2.0
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+    ports:
+      # The HTTP port
+      - "80:80"
+      - "8080:8080"
+      #- "5000:5000"
+      #- "5001:5001"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8080"
+      - "traefik.default.protocol=http"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.example.com`)"
+    networks:
+      - backend
+      - frontend
 
 networks:
     frontend:
