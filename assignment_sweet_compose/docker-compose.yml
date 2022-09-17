@@ -30,8 +30,6 @@ services:
         condition: service_healthy
     labels:
       - "traefik.enable=true"
-      - "traefik.port=80"
-      - "traefik.default.protocol=http"
       - "traefik.http.routers.vote.rule=Host(`vote.localhost`)"
 
   result:
@@ -52,7 +50,6 @@ services:
         condition: service_healthy
     labels:
       - "traefik.enable=true"
-      - "traefik.default.protocol=http"
       - "traefik.http.routers.result.rule=Host(`result.localhost`)"
 
   worker:
@@ -75,6 +72,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
     ports:
+      # The HTTP port
       - "80:80"
       - "8080:8080"
     volumes:
