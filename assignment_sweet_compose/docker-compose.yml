@@ -8,16 +8,16 @@ services:
     healthcheck:
       test: redis-cli ping
 
-  db:
-    image: postgres:9.6
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    networks:
-      - backend
-    healthcheck:
-      test: pg_isready -U postgres -h 127.0.0.1
+  # db:
+  #   image: postgres:9.6
+  #   volumes:
+  #     - db-data:/var/lib/postgresql/data
+  #   environment:
+  #     - POSTGRES_HOST_AUTH_METHOD=trust
+  #   networks:
+  #     - backend
+  #   healthcheck:
+  #     test: pg_isready -U postgres -h 127.0.0.1
 
   vote:
     image: bretfisher/examplevotingapp_vote
@@ -25,52 +25,61 @@ services:
       - frontend
     ports:
       - '5000:80'
+    healthcheck:
+      test: curl http://localhost:80/
+      interval: 3s
+      timeout: 1s
+      retries: 3
+      start_period: 5s
     depends_on:
       redis:
         condition: service_healthy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.vote.rule=Host(`vote.localhost`)"
+      - "traefik.http.services.vote.loadbalancer.healthcheck.path=/"
+      - "traefik.http.services.vote.loadbalancer.healthcheck.interval=100ms"
+  # result:
+  #   build:
+  #     context: result
+  #   command: nodemon --inspect=0.0.0.0:9229 server.js
+  #   environment:
+  #     - NODE_ENV=development
+  #   ports:
+  #     - '5001:80'
+  #     - '9229:9229'
+  #   volumes:
+  #     - ./result:/app
+  #   networks:
+  #     - backend
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.result.rule=Host(`result.localhost`)"
 
-  result:
-    build:
-      context: result
-    command: nodemon --inspect=0.0.0.0:9229 server.js
-    environment:
-      - NODE_ENV=development
-    ports:
-      - '5001:80'
-      - '9229:9229'
-    volumes:
-      - ./result:/app
-    networks:
-      - backend
-    depends_on:
-      db:
-        condition: service_healthy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.result.rule=Host(`result.localhost`)"
-
-  worker:
-    image: bretfisher/examplevotingapp_worker
-    networks:
-      - frontend
-      - backend
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+  # worker:
+  #   image: bretfisher/examplevotingapp_worker
+  #   networks:
+  #     - frontend
+  #     - backend
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
 
   reverse-proxy:
     # The official v2.0 Traefik docker image
     image: traefik:v2.0
     # Enables the web UI and tells Traefik to listen to docker
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
+    # command:
+    #   - "--api.insecure=true"
+    #   - "--api.dashboard=true"
+    #   - "--providers.docker=true"
+    #   - "--providers.docker.exposedbydefault=false"
+    #   - "--providers.file.filename=/FileProvider/file-provider.yml"
     ports:
       # The HTTP port
       - "80:80"
@@ -78,13 +87,15 @@ services:
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./FileProvider/:/FileProvider/
+      - ./traefik.yml:/traefik.yml
     networks:
-      - backend
+      # - backend
       - frontend
 
 networks:
     frontend:
-    backend:
+    # backend:
 
 volumes:
     db-data:

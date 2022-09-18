@@ -1,0 +1,8 @@
+api:
+  insecure: true
+  dashboard: true
+providers:
+  docker:
+    exposedByDefault: false
+  file:
+    filename: /FileProvider/file-provider.yml
